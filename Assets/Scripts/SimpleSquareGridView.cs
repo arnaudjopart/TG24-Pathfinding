@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using GridSystem;
 using UnityEngine;
 using UnityEngine.WSA;
@@ -27,6 +29,8 @@ public class SimpleSquareGridView : MonoBehaviour
     {
         m_grid = new Grid<SimpleSquareNode>(m_width, m_height);
         m_grid.Fill();
+        m_grid.ConnectNodes();
+        
         DrawGrid();
         m_plane = new Plane(Vector3.up, Vector3.zero);
     }
@@ -45,6 +49,8 @@ public class SimpleSquareGridView : MonoBehaviour
                 var tile = Instantiate(m_prefab, tileStartPosition, Quaternion.identity);
                 tile.name = i + "-" + j;
                 tile.GetComponent<TileBaseView>().ConnectToGrid(m_grid.GetNodeAtIndexes(i,j));
+                if (m_grid.GetNodeAtIndexes(i, j).IsAccessible == false)
+                    tile.GetComponent<TileBaseView>().SetAsObstacle();
                 tile.transform.parent = transform;
                 column[j] = tile;
             }
@@ -54,62 +60,9 @@ public class SimpleSquareGridView : MonoBehaviour
     }
 
 
-    // Update is called once per frame
-    void Update()
-    {
-        /*var pointerRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (m_plane.Raycast(pointerRay, out var hit))
-        {
-            var position = pointerRay.GetPoint(hit);
-
-            m_pointer.position = position;
-            var node = m_grid.GetNodeAtPosition(position);
-            if (node == default)
-            {
-                if (m_currentGridNode != default)
-                {
-                    var previousTile = m_tileGrid[m_currentGridNode.ColumnIndex][m_currentGridNode.LineIndex];
-                    previousTile.GetComponent<TileBaseView>().PrintNodeInfo();
-                    previousTile.GetComponent<TileBaseView>().Reset();
-
-                    StopHighlightNeighbours();
-                }
-
-                m_currentGridNode = default;
-            }
-            else
-            {
-                if (node != m_currentGridNode)
-                {
-                    if (m_currentGridNode != default)
-                    {
-                        var previousTile = m_tileGrid[m_currentGridNode.ColumnIndex][m_currentGridNode.LineIndex];
-                        previousTile.GetComponent<TileBaseView>().PrintNodeInfo();
-                        previousTile.GetComponent<TileBaseView>().Reset();
-                        StopHighlightNeighbours();
-                    }
-
-                    m_currentTile = m_tileGrid[node.ColumnIndex][node.LineIndex];
-                    m_currentTile.GetComponent<TileBaseView>().PrintNodeInfo();
-                    m_currentTile.GetComponent<TileBaseView>().Highlight();
-                    m_currentGridNode = node;
-                }
-
-                if (Input.GetMouseButtonDown(0))
-                {
-                    if (m_currentGridNode != default)
-                    {
-                        HighlightNeighbours();
-                    }
-                }
-
-            }
-        }*/
-    }
-
     private void HighlightNeighbours()
     {
-        var neighbours = m_currentGridNode.GetNeighboursCoordinates();
+        var neighbours = m_currentGridNode.GetNeighbourNodes();
         foreach (var coordinates in neighbours)
         {
             var tile = m_tileGrid[coordinates.ColumnIndex][coordinates.LineIndex];
@@ -119,7 +72,7 @@ public class SimpleSquareGridView : MonoBehaviour
 
     private void StopHighlightNeighbours()
     {
-        var neighbours = m_currentGridNode.GetNeighboursCoordinates();
+        var neighbours = m_currentGridNode.GetNeighbourNodes();
         foreach (var coordinates in neighbours)
         {
             var tile = m_tileGrid[coordinates.ColumnIndex][coordinates.LineIndex];
@@ -149,20 +102,47 @@ public class SimpleSquareGridView : MonoBehaviour
         return node == default? null : m_tileGrid[node.ColumnIndex][node.LineIndex];
     }
 
-    public void EvaluateTileAt(NodeCoordinates _variable)
+    public void EvaluateTileAt(INode _variable)
     {
         var tile = m_tileGrid[_variable.ColumnIndex][_variable.LineIndex];
         tile.SetToNextEvaluate();
     }
-
-    public Grid<SimpleSquareNode> GetGrid()
-    {
-        return m_grid;
-    }
-
-    public void HighlightTileAt(NodeCoordinates _variable)
+    
+    public void HighlightTileAt(INode _variable)
     {
         var tile = m_tileGrid[_variable.ColumnIndex][_variable.LineIndex];
         tile.Highlight();
+    }
+
+    public void ResetAllTiles()
+    {
+        for (var i = 0; i < m_grid.NbOfColumns; i++)
+        {
+            
+            for (var j = 0; j < m_grid.NbOfLines; j++)
+            {
+                m_tileGrid[i][j].Reset();
+            }
+        }
+    }
+
+    public void DrawObstacles()
+    {
+        for (var i = 0; i < m_grid.NbOfColumns; i++)
+        {
+            
+            for (var j = 0; j < m_grid.NbOfLines; j++)
+            {
+                if(m_tileGrid[i][j].GetNode().IsAccessible == false) m_tileGrid[i][j].SetAsObstacle();
+            }
+        }
+    }
+
+    public void DrawEvaluatedTiles(List<INode> _listOfAlreadyEvaluatedNodes)
+    {
+        foreach (var VARIABLE in _listOfAlreadyEvaluatedNodes)
+        {
+            EvaluateTileAt(VARIABLE);
+        }
     }
 }

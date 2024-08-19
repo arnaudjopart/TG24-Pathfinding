@@ -32,5 +32,7 @@ namespace GridSystem
         }
 
         public abstract void SetToNextEvaluate();
+
+        public abstract void SetAsObstacle();
     }
 }

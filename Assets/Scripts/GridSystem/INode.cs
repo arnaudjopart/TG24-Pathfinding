@@ -4,14 +4,28 @@ namespace GridSystem
 {
     public interface INode
     {
-        void SetNeighbours(int _lineIndex, int _column, int _nbLines, int _nbColumns);
-        public HashSet<NodeCoordinates> GetNeighboursCoordinates();
-        public int GetNumberOfNeighbours();
+        public int[][] GetNeighboursRelativeCoordinates();
+
+        public void SetIndexes(int _i, int _j);
         
         bool IsAccessible { get; set; }
         
         public int LineIndex { get; }
         public int ColumnIndex { get; }
-        NodeCoordinates Coordinates { get; set; }
+
+        void AddNeighbour(INode _node);
+        
+        public INode ParentNode { get; set; }
+        int GCost { get; set; }
+        int HCost { get; set; }
+        int Cost { get; set; }
+
+        public List<INode> GetNeighbourNodes();
+        
+        public bool Equals(INode _node);
+
+        public int DistanceToDestination(INode _destination);
+        public int DistanceToStart();
+
     }
 }

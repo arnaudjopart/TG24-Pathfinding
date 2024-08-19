@@ -27,7 +27,7 @@ namespace Tests
             grid.Fill();
             var firstCell = grid.GetNodeAtIndexes(0, 0);
             Assert.AreEqual(2,firstCell.GetNumberOfNeighbours());
-            var result = firstCell.GetNeighboursCoordinates();
+            var result = firstCell.GetNeighbourNodes();
             int[] test = {0, 1};
             var containsThisElement = CheckForElement(test, result);
             Assert.AreEqual(true,containsThisElement);
@@ -40,7 +40,7 @@ namespace Tests
             grid.Fill();
             var firstCell = grid.GetNodeAtIndexes(0, 0);
             Assert.AreEqual(2,firstCell.GetNumberOfNeighbours());
-            var result = firstCell.GetNeighboursCoordinates();
+            var result = firstCell.GetNeighbourNodes();
             int[] test = {0, 1};
             var containsThisElement = CheckForElement(test, result);
             Assert.AreEqual(true,containsThisElement);
@@ -53,14 +53,14 @@ namespace Tests
             grid.Fill();
             var firstCell = grid.GetNodeAtIndexes(0, 0);
             Assert.AreEqual(2,firstCell.GetNumberOfNeighbours());
-            var result = firstCell.GetNeighboursCoordinates();
+            var result = firstCell.GetNeighbourNodes();
             int[] test = {1, 0};
             var containsThisElement = CheckForElement(test, result);
             Assert.AreEqual(true,containsThisElement);
         }
         
         
-        private bool  CheckForElement(int[] _test, HashSet<NodeCoordinates> _result)
+        private bool CheckForElement(int[] _test, List<INode> _result)
         {
             return _result.Any(element => element.ColumnIndex == _test[0] && element.LineIndex == _test[1]);
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using Random = System.Random;
 
 namespace GridSystem
 {
@@ -29,24 +30,41 @@ namespace GridSystem
                 for (var j = 0; j < m_nbLines; j++)
                 {
                     var newNode = new T();
-                    newNode.SetNeighbours(i,j, m_nbLines,m_nbColumns);
+                    newNode.SetIndexes(i,j);
+                    newNode.IsAccessible = UnityEngine.Random.value > .3f;
                     lineOfNode[j] = newNode;
                 }
                 m_nodes[i] = lineOfNode;
             }
         }
 
-        /*public void Connect()
+        public void ConnectNodes()
         {
             for (var i = 0; i < m_nbColumns; i++)
             {
-                
                 for (var j = 0; j < m_nbLines; j++)
                 {
-                    m_nodes[i][j].SetNeighbours(i,j, m_nbLines,m_nbColumns);
+                    var node = m_nodes[i][j];
+                    ConnectNodeToTheirNeighbours(i,j,node);
                 }
             }
-        }*/
+        }
+
+        private void ConnectNodeToTheirNeighbours(int _columnIndex, int _lineIndex, T _node)
+        {
+            var listOfNeighboursCoordinates = _node.GetNeighboursRelativeCoordinates();
+            foreach (var coordinate in listOfNeighboursCoordinates)
+            {
+                var possibleColumnIndex = _columnIndex + coordinate[0];
+                var possibleLineIndex = _lineIndex + coordinate[1];
+                
+                if(possibleColumnIndex<0 || possibleLineIndex<0) continue;
+                if(possibleColumnIndex>=m_nbColumns || possibleLineIndex>=m_nbLines) continue;
+
+                var neighbour = GetNodeAtIndexes(possibleColumnIndex, possibleLineIndex);
+                _node.AddNeighbour(neighbour);
+            }
+        }
 
         public T GetNodeAtIndexes(int _column,int _line)
         {
@@ -58,8 +76,8 @@ namespace GridSystem
 
         public T GetNodeAtPosition(Vector3 _position)
         {
-            var columnIndex = Mathf.FloorToInt(_position.x);
-            var lineIndex = Mathf.FloorToInt(_position.z);
+            var columnIndex = Mathf.FloorToInt(_position.x+.5f);
+            var lineIndex = Mathf.FloorToInt(_position.z+.5f);
 
             var selectedNode = GetNodeAtIndexes(columnIndex,lineIndex);
             return selectedNode;

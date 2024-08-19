@@ -1,78 +1,79 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
 
 namespace GridSystem
 {
     public class SimpleSquareNode : INode
     {
-        private HashSet<NodeCoordinates> m_neighbours;
-        public NodeCoordinates parentCoordinates;
-    
-        public void SetNeighbours(int _i, int _j, int _nbLines, int _nbColumns)
+       
+        private readonly int[][] m_possibleNeighborsCoordinates;
+        private readonly List<INode> m_listOfNeighbours = new();
+
+        public SimpleSquareNode()
+        {
+            m_possibleNeighborsCoordinates = new[]
+            {
+                new[] {1, 0},//RIGHT
+                new[] {-1, 0}, //LEFT
+                new[] {0, -1}, //DOWN
+                new[] {0, 1},//TOP
+                
+                
+                
+            };
+        }
+        public void SetIndexes(int _i, int _j)
         {
             IsAccessible = true;
             ColumnIndex = _i;
             LineIndex = _j;
-
-            Coordinates = new NodeCoordinates(_i, _j);
-            m_neighbours = new HashSet<NodeCoordinates>();
-            var possibleNeighborsCoordinates = new[]
-            {
-                new[] {_i-1, _j}, //TOP
-                new[] {_i, _j+1},//Right
-                new[] {_i+1, _j},//BOTTOM
-                new[] {_i, _j-1} //Left
-            };
-
-            foreach (var possibleNeighbor in possibleNeighborsCoordinates)
-            {
-                if(possibleNeighbor[0]<0 || possibleNeighbor[1]<0) continue;
-                if(possibleNeighbor[0]>=_nbColumns || possibleNeighbor[1]>=_nbLines) continue;
-                m_neighbours.Add(new NodeCoordinates(possibleNeighbor[0],possibleNeighbor[1]));
-            }
         }
 
         
         public int GetNumberOfNeighbours()
         {
-            return m_neighbours.Count;
+            return m_listOfNeighbours.Count;
         }
 
         public bool IsAccessible { get; set; }
         public int LineIndex { get; private set; }
 
         public int ColumnIndex { get; private set; }
-        public NodeCoordinates Coordinates { get; set; }
 
-        public HashSet<NodeCoordinates> GetNeighboursCoordinates()
+        public void AddNeighbour(INode _node)
         {
-            return m_neighbours;
-        }
-    }
-
-    [System.Serializable]
-    public struct NodeCoordinates
-    {
-
-        public NodeCoordinates(int _columnsIndex, int _lineIndex)
-        {
-            ColumnIndex = _columnsIndex;
-            LineIndex = _lineIndex;
+            m_listOfNeighbours.Add(_node);
         }
 
-        public int ColumnIndex { get; }
-        public int LineIndex { get; }
+        public INode ParentNode { get; set; }
+        public int GCost { get; set; }
+        public int HCost { get; set; }
+        public int Cost { get; set; }
+
+        public int[][] GetNeighboursRelativeCoordinates()
+        {
+            return m_possibleNeighborsCoordinates;
+        }
+
+        public List<INode> GetNeighbourNodes()
+        {
+            return m_listOfNeighbours;
+        }
         
-        public bool Equals(NodeCoordinates other)
+        public bool Equals(INode other)
         {
             return ColumnIndex == other.ColumnIndex && LineIndex == other.LineIndex;
         }
 
-        public override int GetHashCode()
+        public int DistanceToDestination(INode _destination)
         {
-            return HashCode.Combine(ColumnIndex, LineIndex);
+            return 1;
+        }
+
+        public int DistanceToStart()
+        {
+            return 1;
         }
     }
-    
-    
+
 }

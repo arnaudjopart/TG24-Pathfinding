@@ -11,6 +11,7 @@ public class DummyTile : TileBaseView
     private Material m_defaultMaterial;
     [SerializeField] private Material m_interactMaterial;
     [SerializeField] private TMP_Text m_text;
+    [SerializeField] private Material m_obstacleMaterial;
 
     // Start is called before the first frame update
     void Start()
@@ -52,5 +53,10 @@ public class DummyTile : TileBaseView
     public override void SetToNextEvaluate()
     {
         m_renderer.material = m_interactMaterial;
+    }
+
+    public override void SetAsObstacle()
+    {
+        m_renderer.material = m_obstacleMaterial;
     }
 }
