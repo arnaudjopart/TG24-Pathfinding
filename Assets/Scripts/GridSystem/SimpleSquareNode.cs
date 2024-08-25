@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace GridSystem
 {
@@ -17,9 +18,6 @@ namespace GridSystem
                 new[] {-1, 0}, //LEFT
                 new[] {0, -1}, //DOWN
                 new[] {0, 1},//TOP
-                
-                
-                
             };
         }
         public void SetIndexes(int _i, int _j)
@@ -65,14 +63,32 @@ namespace GridSystem
             return ColumnIndex == other.ColumnIndex && LineIndex == other.LineIndex;
         }
 
+        
         public int DistanceToDestination(INode _destination)
         {
-            return 1;
+            var absoluteDeltaOnColumn = Mathf.Abs(_destination.ColumnIndex - ColumnIndex);
+            var absoluteDeltaOnLine = Mathf.Abs(_destination.LineIndex - LineIndex);
+
+            
+        
+            return absoluteDeltaOnColumn+absoluteDeltaOnLine;
+
+        }
+
+
+
+        public int GetTotalCost(INode _destination)
+        {
+            HCost = DistanceToDestination(_destination);
+            GCost = DistanceToStart();
+            Cost = HCost + GCost;
+            return Cost;
         }
 
         public int DistanceToStart()
         {
-            return 1;
+            GCost = ParentNode == null ? GCost = 0: GCost = ParentNode.GCost + DistanceToDestination(ParentNode);
+            return GCost;
         }
     }
 

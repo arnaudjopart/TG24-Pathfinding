@@ -56,7 +56,7 @@ public class EightMovesSquareNode : INode
 
     public bool Equals(INode _node)
     {
-        throw new NotImplementedException();
+        return ColumnIndex == _node.ColumnIndex && LineIndex == _node.LineIndex;
     }
 
     public int DistanceToDestination(INode _destination)
@@ -67,8 +67,7 @@ public class EightMovesSquareNode : INode
         var smallestDelta = Mathf.Min(absoluteDeltaOnColumn, absoluteDeltaOnLine);
         var biggestDelta = Mathf.Max(absoluteDeltaOnColumn, absoluteDeltaOnLine);
         var distance = smallestDelta * 14 + (biggestDelta - smallestDelta) * 10;
-
-        HCost = distance;
+        
         return distance;
 
     }
@@ -77,7 +76,9 @@ public class EightMovesSquareNode : INode
 
     public int GetTotalCost(INode _destination)
     {
-        Cost = DistanceToDestination(_destination) + DistanceToStart();
+        HCost = DistanceToDestination(_destination);
+        GCost = DistanceToStart();
+        Cost = HCost + GCost;
         return Cost;
     }
 

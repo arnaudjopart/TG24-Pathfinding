@@ -20,13 +20,14 @@ public class SimpleSquareGridView : MonoBehaviour
 
     private Plane m_plane;
     [SerializeField] Transform m_pointer;
-    private SimpleSquareNode m_currentGridNode;
     private TileBaseView[][] m_tileGrid;
     private TileBaseView m_currentTile;
+    private Camera m_camera;
 
     // Start is called before the first frame update
     void Start()
     {
+        m_camera = Camera.main;
         m_grid = new Grid<SimpleSquareNode>(m_width, m_height);
         m_grid.Fill();
         m_grid.ConnectNodes();
@@ -59,7 +60,7 @@ public class SimpleSquareGridView : MonoBehaviour
         }
     }
 
-
+/*
     private void HighlightNeighbours()
     {
         var neighbours = m_currentGridNode.GetNeighbourNodes();
@@ -78,7 +79,7 @@ public class SimpleSquareGridView : MonoBehaviour
             var tile = m_tileGrid[coordinates.ColumnIndex][coordinates.LineIndex];
             tile.GetComponent<TileBaseView>().Reset();
         }
-    }
+    }*/
 
     public bool DoesFindATileAtPosition(Vector3 _mousePosition)
     {
@@ -91,15 +92,18 @@ public class SimpleSquareGridView : MonoBehaviour
         return node == default;
     }
 
-    public TileBaseView SelectTileAtPosition(Vector3 _mousePosition)
+    public bool SelectTileAtPosition(Vector3 _mousePosition, out TileBaseView _result)
     {
-        var pointerRay = Camera.main.ScreenPointToRay(_mousePosition);
-        if (!m_plane.Raycast(pointerRay, out var hit)) return null;
+        _result = null;
+        var pointerRay = m_camera!.ScreenPointToRay(_mousePosition);
+        if (!m_plane.Raycast(pointerRay, out var hit)) return false;
         var position = pointerRay.GetPoint(hit);
 
         m_pointer.position = position;
         var node = m_grid.GetNodeAtPosition(position);
-        return node == default? null : m_tileGrid[node.ColumnIndex][node.LineIndex];
+        if (node == default) return false;
+        _result = m_tileGrid[node.ColumnIndex][node.LineIndex];
+        return true;
     }
 
     public void EvaluateTileAt(INode _variable)
@@ -144,5 +148,23 @@ public class SimpleSquareGridView : MonoBehaviour
         {
             EvaluateTileAt(VARIABLE);
         }
+    }
+
+    public void SetAsPathStart(INode _getStartNode)
+    {
+        var tile = m_tileGrid[_getStartNode.ColumnIndex][_getStartNode.LineIndex];
+        tile.SelectAsPathStart();
+    }
+
+    public void SetAsPathEnd(INode _getEndNode)
+    {
+        var tile = m_tileGrid[_getEndNode.ColumnIndex][_getEndNode.LineIndex];
+        tile.SelectAsPathEnd();
+    }
+
+    public void SetVeryNextNodeToBeEvaluated(INode _getEndNode)
+    {
+        var tile = m_tileGrid[_getEndNode.ColumnIndex][_getEndNode.LineIndex];
+        tile.SetToVeryNextEvaluate();
     }
 }

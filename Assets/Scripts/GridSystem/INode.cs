@@ -27,5 +27,7 @@ namespace GridSystem
         public int DistanceToDestination(INode _destination);
         public int DistanceToStart();
 
+        public int GetTotalCost(INode _destination);
+
     }
 }
